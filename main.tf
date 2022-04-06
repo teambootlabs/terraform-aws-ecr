@@ -1,15 +1,12 @@
 resource "aws_ecr_repository" "foo" {
-  name                 = "bar"
-  image_tag_mutability = "MUTABLE"
-
+  name                 = var.ecr_name
+  image_tag_mutability = var.image_tag_mutability
   image_scanning_configuration {
-    scan_on_push = true
+    scan_on_push = var.scan_on_push
   }
 }
-
 resource "aws_ecr_lifecycle_policy" "foopolicy" {
   repository = aws_ecr_repository.foo.name
-
   policy = <<EOF
 {
     "rules": [
@@ -30,26 +27,6 @@ resource "aws_ecr_lifecycle_policy" "foopolicy" {
 }
 EOF
 }
-
-resource "aws_ecr_pull_through_cache_rule" "example" {
-  ecr_repository_prefix = "ecr-public"
-  upstream_registry_url = "public.ecr.aws"
-}
-
-
-
-resource "aws_ecr_registry_scanning_configuration" "configuration" {
-  scan_type = "ENHANCED"
-
-  rule {
-    scan_frequency = "CONTINUOUS_SCAN"
-    repository_filter {
-      filter      = "example"
-      filter_type = "WILDCARD"
-    }
-  }
-}
-
 
 
 
