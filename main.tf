@@ -1,23 +1,56 @@
-resource "aws_ecr_repository" "foo" {
-  name                 = var.ecr_name
+resource "aws_ecr_repository" "repo" {
+  name                 = var.name
   image_tag_mutability = var.image_tag_mutability
   image_scanning_configuration {
     scan_on_push = var.scan_on_push
   }
 }
-resource "aws_ecr_lifecycle_policy" "foopolicy" {
-  repository = aws_ecr_repository.foo.name
+resource "aws_ecr_repository_policy" "foopolicy" {
+  repository = aws_ecr_repository.repo.name
+
+  policy = <<EOF
+{
+    "Version": "2008-10-17",
+    "Statement": [
+        {
+            "Sid": "new policy",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:PutImage",
+                "ecr:InitiateLayerUpload",
+                "ecr:UploadLayerPart",
+                "ecr:CompleteLayerUpload",
+                "ecr:DescribeRepositories",
+                "ecr:GetRepositoryPolicy",
+                "ecr:ListImages",
+                "ecr:DeleteRepository",
+                "ecr:BatchDeleteImage",
+                "ecr:SetRepositoryPolicy",
+                "ecr:DeleteRepositoryPolicy"
+            ]
+        }
+    ]
+}
+EOF
+}
+resource "aws_ecr_lifecycle_policy" "policy" {
+  repository = aws_ecr_repository.repo.name
+
   policy = <<EOF
 {
     "rules": [
         {
             "rulePriority": 1,
-            "description": "Expire images older than 14 days",
+            "description": "Keep last 30 images",
             "selection": {
-                "tagStatus": "untagged",
-                "countType": "sinceImagePushed",
-                "countUnit": "days",
-                "countNumber": 14
+                "tagStatus": "tagged",
+                "tagPrefixList": ["v"],
+                "countType": "imageCountMoreThan",
+                "countNumber": 30
             },
             "action": {
                 "type": "expire"
@@ -28,8 +61,7 @@ resource "aws_ecr_lifecycle_policy" "foopolicy" {
 EOF
 }
 
-
-
-
-
-
+resource "aws_ecr_pull_through_cache_rule" "cache" {
+  ecr_repository_prefix = var.ecr_repository_prefix
+  upstream_registry_url = var.upstream_registry_url
+}
