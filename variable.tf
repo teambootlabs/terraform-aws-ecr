@@ -2,7 +2,7 @@
 variable "name" {
   description = "Name of the repository."
   type        = string
-  default = "test/demo"
+  default     = "test/demo"
 }
 
 variable "image_tag_mutability" {
@@ -14,7 +14,7 @@ variable "image_tag_mutability" {
 # Image scanning configuration
 variable "image_scanning_configuration" {
   description = "Configuration block that defines image scanning configuration for the repository. By default, image scanning must be manually triggered. See the ECR User Guide for more information about image scanning."
-  type        = map
+  type        = map(any)
   default     = {}
 }
 
@@ -32,13 +32,13 @@ variable "tags" {
 }
 
 variable "ecr_repository_prefix" {
-    type = string
-    description = "(optional) describe your variable"
-    default = "ecr-privates"
+  type        = string
+  description = "(optional) describe your variable"
+  default     = "ecr-privates"
 }
 
 variable "upstream_registry_url" {
-    type = string
-    description = "(optional) describe your variable"
-    default = "public.ecr.aws"
+  type        = string
+  description = "(optional) describe your variable"
+  default     = "public.ecr.aws"
 }
