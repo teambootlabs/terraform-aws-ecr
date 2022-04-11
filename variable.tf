@@ -42,3 +42,4 @@ variable "upstream_registry_url" {
   description = "(optional) describe your variable"
   default     = "public.ecr.aws"
 }
+/* hgdhwwb */
